@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework import status
 from rest_framework import authentication, permissions
+from rest_framework import viewsets, mixins
 from django.contrib.auth.models import User
 from api.models import Post
 from .serializers import PostSerializer
@@ -30,3 +31,15 @@ class SearchPost(generics.ListAPIView):
     def get_queryset(self):
         q = self.kwargs['q']
         return Post.objects.filter(title__contains=q)
+
+class ListPostSet(
+                    mixins.CreateModelMixin,    # POST - Insert
+                    mixins.RetrieveModelMixin,  # GET - GetItem
+                    mixins.UpdateModelMixin,  # PUT/PATCH - Update
+                    mixins.DestroyModelMixin, # DELETE - Delete
+                    mixins.ListModelMixin,    # GET - GetListItem
+                    viewsets.GenericViewSet     # Generic
+                ):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    permission_classes =[permissions.IsAdminUser]
